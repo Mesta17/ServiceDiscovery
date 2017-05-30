@@ -1,24 +1,29 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestRoot(t *testing.T) {
-	req, err := http.NewRequest("GET", "https://localhost:8080/dog", nil)
-	if err != nil {
-		t.Errorf("Exception creating new request: %s", err.Error())
-	}
-	fmt.Println(req.URL.Path)
-	w := httptest.NewRecorder()
-	LoveHandler(w, req)
+var ts *httptest.Server
 
-	resp := w.Body
-	body, _ := ioutil.ReadAll(resp)
+func TestMain(m *testing.M) {
+	ts = httptest.NewServer(http.HandlerFunc(loveHandler))
+	defer ts.Close()
+	m.Run()
+}
 
-	fmt.Println(string(body))
+func TestServer(t *testing.T) {
+	resp, err := http.Get(ts.URL + "/dog")
+	assert.Nil(t, err)
+
+	message, err := ioutil.ReadAll(resp.Body)
+	resp.Body.Close()
+	assert.Nil(t, err)
+
+	assert.Equal(t, "Hi there, I love dog!", string(message))
 }

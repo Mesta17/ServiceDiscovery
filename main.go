@@ -10,7 +10,7 @@ import (
 	"github.com/Mesta17/ServiceDiscovery/xlog"
 )
 
-const debugMode = true
+const debugMode = false
 
 type handler func(http.ResponseWriter, *http.Request)
 
@@ -32,12 +32,12 @@ func (h handler) debugServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(body)+"\n")
 }
 
-func LoveHandler(w http.ResponseWriter, r *http.Request) {
+func loveHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }
 
 func main() {
 	mux := http.NewServeMux()
-	mux.Handle("/", handler(LoveHandler))
+	mux.Handle("/", handler(loveHandler))
 	http.ListenAndServe(":8080", mux)
 }
